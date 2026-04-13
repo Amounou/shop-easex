@@ -104,7 +104,7 @@ const CreateStore = () => {
       phone: formData.phone.trim() || null,
       email: formData.email.trim() || null,
       terms_conditions: formData.terms_conditions.trim() || null,
-      status: "draft",
+      status: "active",
     });
 
     setLoading(false);

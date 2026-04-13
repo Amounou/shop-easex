@@ -25,10 +25,26 @@ const StorePage = () => {
   useEffect(() => {
     const load = async () => {
       setLoading(true);
-      // Load first active store if no slug
-      let storeQuery = supabase.from("stores").select("*").eq("status", "active");
-      if (slug) storeQuery = storeQuery.eq("slug", slug);
-      const { data: storeData } = await storeQuery.limit(1).single();
+      let storeData = null;
+
+      if (slug) {
+        // Load by slug — RLS already allows owner + active stores
+        const { data } = await supabase.from("stores").select("*").eq("slug", slug).limit(1).single();
+        storeData = data;
+      } else {
+        // No slug: try to load the current user's store first
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+          const { data } = await supabase.from("stores").select("*").eq("owner_id", session.user.id).limit(1).single();
+          storeData = data;
+        }
+        // Fallback: first active store
+        if (!storeData) {
+          const { data } = await supabase.from("stores").select("*").eq("status", "active").limit(1).single();
+          storeData = data;
+        }
+      }
+
       if (!storeData) { setLoading(false); return; }
       setStore(storeData);
 
