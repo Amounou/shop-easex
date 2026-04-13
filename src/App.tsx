@@ -9,7 +9,19 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
-import Dashboard from "./pages/Dashboard";
+import DashboardLayout from "./components/DashboardLayout";
+import DashboardHome from "./pages/dashboard/DashboardHome";
+import DashboardSales from "./pages/dashboard/DashboardSales";
+import DashboardProducts from "./pages/dashboard/DashboardProducts";
+import DashboardCustomers from "./pages/dashboard/DashboardCustomers";
+import DashboardRevenue from "./pages/dashboard/DashboardRevenue";
+import DashboardAnalytics from "./pages/dashboard/DashboardAnalytics";
+import DashboardMarketing from "./pages/dashboard/DashboardMarketing";
+import DashboardReviews from "./pages/dashboard/DashboardReviews";
+import DashboardAutomations from "./pages/dashboard/DashboardAutomations";
+import DashboardMedia from "./pages/dashboard/DashboardMedia";
+import DashboardExports from "./pages/dashboard/DashboardExports";
+import DashboardSettings from "./pages/dashboard/DashboardSettings";
 import FAQ from "./pages/FAQ";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
@@ -35,7 +47,20 @@ const App = () => (
             <Route path="/signup" element={<Signup />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
-            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/dashboard" element={<DashboardLayout />}>
+              <Route index element={<DashboardHome />} />
+              <Route path="sales" element={<DashboardSales />} />
+              <Route path="products" element={<DashboardProducts />} />
+              <Route path="customers" element={<DashboardCustomers />} />
+              <Route path="revenue" element={<DashboardRevenue />} />
+              <Route path="analytics" element={<DashboardAnalytics />} />
+              <Route path="marketing" element={<DashboardMarketing />} />
+              <Route path="reviews" element={<DashboardReviews />} />
+              <Route path="automations" element={<DashboardAutomations />} />
+              <Route path="media" element={<DashboardMedia />} />
+              <Route path="exports" element={<DashboardExports />} />
+              <Route path="settings" element={<DashboardSettings />} />
+            </Route>
             <Route path="/faq" element={<FAQ />} />
             <Route path="/terms" element={<Terms />} />
             <Route path="/privacy" element={<Privacy />} />
