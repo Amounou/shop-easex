@@ -14,6 +14,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useUserStore } from "@/hooks/useUserStore";
 import { useState } from "react";
 
 const mainItems = [
@@ -39,6 +40,7 @@ export function DashboardSidebar() {
   const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { store } = useUserStore();
   const [moreOpen, setMoreOpen] = useState(false);
 
   const isActive = (path: string) =>
@@ -55,12 +57,11 @@ export function DashboardSidebar() {
   return (
     <Sidebar collapsible="icon" className="border-r border-border">
       <SidebarContent className="pt-4">
-        {/* Logo */}
         <div className="flex items-center gap-2 px-4 mb-4">
           <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center flex-shrink-0">
             <ShoppingBag className="w-4 h-4 text-primary-foreground" />
           </div>
-          {!collapsed && <span className="text-lg font-bold text-foreground">ShopEase</span>}
+          {!collapsed && <span className="text-lg font-bold text-foreground">{store?.name || "ShopEase"}</span>}
         </div>
 
         <SidebarGroup>
@@ -69,12 +70,7 @@ export function DashboardSidebar() {
               {mainItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild isActive={isActive(item.url)}>
-                    <NavLink
-                      to={item.url}
-                      end={item.url === "/dashboard"}
-                      className="flex items-center gap-3 px-3 py-2 rounded-lg text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"
-                      activeClassName="bg-primary/10 text-primary font-medium"
-                    >
+                    <NavLink to={item.url} end={item.url === "/dashboard"} className="flex items-center gap-3 px-3 py-2 rounded-lg text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors" activeClassName="bg-primary/10 text-primary font-medium">
                       <item.icon className="h-5 w-5 flex-shrink-0" />
                       {!collapsed && <span>{item.title}</span>}
                     </NavLink>
@@ -82,7 +78,6 @@ export function DashboardSidebar() {
                 </SidebarMenuItem>
               ))}
 
-              {/* Plus - Collapsible */}
               {!collapsed ? (
                 <Collapsible open={moreOpen} onOpenChange={setMoreOpen}>
                   <SidebarMenuItem>
@@ -98,11 +93,7 @@ export function DashboardSidebar() {
                     {moreItems.map((item) => (
                       <SidebarMenuItem key={item.title}>
                         <SidebarMenuButton asChild isActive={isActive(item.url)}>
-                          <NavLink
-                            to={item.url}
-                            className="flex items-center gap-3 px-3 py-2 pl-10 rounded-lg text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"
-                            activeClassName="bg-primary/10 text-primary font-medium"
-                          >
+                          <NavLink to={item.url} className="flex items-center gap-3 px-3 py-2 pl-10 rounded-lg text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors" activeClassName="bg-primary/10 text-primary font-medium">
                             <item.icon className="h-5 w-5 flex-shrink-0" />
                             <span>{item.title}</span>
                           </NavLink>
@@ -115,11 +106,7 @@ export function DashboardSidebar() {
                 moreItems.map((item) => (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild isActive={isActive(item.url)}>
-                      <NavLink
-                        to={item.url}
-                        className="flex items-center gap-3 px-3 py-2 rounded-lg text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"
-                        activeClassName="bg-primary/10 text-primary font-medium"
-                      >
+                      <NavLink to={item.url} className="flex items-center gap-3 px-3 py-2 rounded-lg text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors" activeClassName="bg-primary/10 text-primary font-medium">
                         <item.icon className="h-5 w-5 flex-shrink-0" />
                       </NavLink>
                     </SidebarMenuButton>
@@ -127,14 +114,9 @@ export function DashboardSidebar() {
                 ))
               )}
 
-              {/* Paramètres */}
               <SidebarMenuItem>
                 <SidebarMenuButton asChild isActive={isActive("/dashboard/settings")}>
-                  <NavLink
-                    to="/dashboard/settings"
-                    className="flex items-center gap-3 px-3 py-2 rounded-lg text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"
-                    activeClassName="bg-primary/10 text-primary font-medium"
-                  >
+                  <NavLink to="/dashboard/settings" className="flex items-center gap-3 px-3 py-2 rounded-lg text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors" activeClassName="bg-primary/10 text-primary font-medium">
                     <Settings className="h-5 w-5 flex-shrink-0" />
                     {!collapsed && <span>Paramètres</span>}
                   </NavLink>
@@ -144,17 +126,13 @@ export function DashboardSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* Plus section */}
         <SidebarGroup>
           <SidebarGroupLabel>Plus</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <NavLink
-                    to="/help"
-                    className="flex items-center gap-3 px-3 py-2 rounded-lg text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"
-                  >
+                  <NavLink to="/help" className="flex items-center gap-3 px-3 py-2 rounded-lg text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors">
                     <HelpCircle className="h-5 w-5 flex-shrink-0" />
                     {!collapsed && <span>Centre d'aide</span>}
                   </NavLink>
@@ -166,7 +144,7 @@ export function DashboardSidebar() {
       </SidebarContent>
 
       <SidebarFooter className="p-3 space-y-2">
-        <Button variant="outline" size="sm" className="w-full justify-start gap-2" onClick={() => navigate("/store")}>
+        <Button variant="outline" size="sm" className="w-full justify-start gap-2" onClick={() => navigate(store ? `/store/${store.slug}` : "/store")}>
           <Eye className="h-4 w-4" />
           {!collapsed && <span>Voir ma boutique</span>}
         </Button>
