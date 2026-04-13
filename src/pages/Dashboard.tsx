@@ -1,5 +1,5 @@
 import { useNavigate, Link } from "react-router-dom";
-import { ShoppingBag, LayoutDashboard, Package, ShoppingCart, BarChart3, Settings, LogOut } from "lucide-react";
+import { ShoppingBag, LayoutDashboard, Package, ShoppingCart, BarChart3, Settings, LogOut, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -48,6 +48,12 @@ const Dashboard = () => {
             <span className="text-lg font-bold text-foreground">ShopEase</span>
           </div>
           <div className="flex items-center gap-3">
+            <Link to="/store">
+              <Button variant="outline" size="sm">
+                <Eye className="w-4 h-4" />
+                <span className="hidden sm:inline">Voir ma boutique</span>
+              </Button>
+            </Link>
             <span className="text-sm text-muted-foreground hidden sm:block">
               {user.user_metadata?.full_name || user.email}
             </span>
