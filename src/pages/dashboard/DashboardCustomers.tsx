@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Users, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { useUserStore } from "@/hooks/useUserStore";
 
 interface Customer {
   customer_id: string | null;
@@ -13,18 +14,19 @@ interface Customer {
 }
 
 const DashboardCustomers = () => {
+  const { storeId, loading: storeLoading } = useUserStore();
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
 
   useEffect(() => {
+    if (storeLoading) return;
     const load = async () => {
-      const { data: stores } = await supabase.from("stores").select("id").limit(1);
-      if (!stores?.length) { setLoading(false); return; }
+      if (!storeId) { setLoading(false); return; }
       const { data: orders } = await supabase
         .from("orders")
         .select("customer_id, shipping_name, shipping_phone, shipping_city, total")
-        .eq("store_id", stores[0].id);
+        .eq("store_id", storeId);
 
       if (!orders) { setLoading(false); return; }
 
@@ -50,7 +52,7 @@ const DashboardCustomers = () => {
       setLoading(false);
     };
     load();
-  }, []);
+  }, [storeId, storeLoading]);
 
   const formatPrice = (p: number) => new Intl.NumberFormat("fr-FR").format(p) + " FCFA";
   const filtered = customers.filter((c) =>
@@ -68,7 +70,7 @@ const DashboardCustomers = () => {
         <Input placeholder="Rechercher..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10" />
       </div>
 
-      {loading ? (
+      {loading || storeLoading ? (
         <div className="flex justify-center py-12"><div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" /></div>
       ) : filtered.length === 0 ? (
         <div className="text-center py-16 bg-card rounded-xl border border-border">

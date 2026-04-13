@@ -1,32 +1,32 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Eye, Filter } from "lucide-react";
+import { Search, Filter } from "lucide-react";
+import { useUserStore } from "@/hooks/useUserStore";
 import type { Tables } from "@/integrations/supabase/types";
 
 type Order = Tables<"orders">;
 
 const DashboardSales = () => {
+  const { storeId, loading: storeLoading } = useUserStore();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
 
   useEffect(() => {
+    if (storeLoading) return;
     const load = async () => {
-      const { data: stores } = await supabase.from("stores").select("id").limit(1);
-      if (!stores?.length) { setLoading(false); return; }
+      if (!storeId) { setLoading(false); return; }
       const { data } = await supabase
         .from("orders")
         .select("*")
-        .eq("store_id", stores[0].id)
+        .eq("store_id", storeId)
         .order("created_at", { ascending: false });
       setOrders(data || []);
       setLoading(false);
     };
     load();
-  }, []);
+  }, [storeId, storeLoading]);
 
   const formatPrice = (p: number) => new Intl.NumberFormat("fr-FR").format(p) + " FCFA";
   const statusColor: Record<string, string> = {
@@ -56,7 +56,7 @@ const DashboardSales = () => {
         <Input placeholder="Rechercher une commande..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10" />
       </div>
 
-      {loading ? (
+      {loading || storeLoading ? (
         <div className="flex justify-center py-12">
           <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
         </div>
