@@ -6,14 +6,15 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Search, Plus, Pencil, Trash2, Package } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { useUserStore } from "@/hooks/useUserStore";
 import type { Tables } from "@/integrations/supabase/types";
 
 type Product = Tables<"products">;
 
 const DashboardProducts = () => {
   const { toast } = useToast();
+  const { storeId, loading: storeLoading } = useUserStore();
   const [products, setProducts] = useState<Product[]>([]);
-  const [storeId, setStoreId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -22,19 +23,17 @@ const DashboardProducts = () => {
   const [saving, setSaving] = useState(false);
 
   const load = async () => {
-    const { data: stores } = await supabase.from("stores").select("id").limit(1);
-    if (!stores?.length) { setLoading(false); return; }
-    setStoreId(stores[0].id);
+    if (!storeId) { setLoading(false); return; }
     const { data } = await supabase
       .from("products")
       .select("*")
-      .eq("store_id", stores[0].id)
+      .eq("store_id", storeId)
       .order("created_at", { ascending: false });
     setProducts(data || []);
     setLoading(false);
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { if (!storeLoading) load(); }, [storeId, storeLoading]);
 
   const formatPrice = (p: number) => new Intl.NumberFormat("fr-FR").format(p) + " FCFA";
 
@@ -109,7 +108,7 @@ const DashboardProducts = () => {
         <Input placeholder="Rechercher..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10" />
       </div>
 
-      {loading ? (
+      {loading || storeLoading ? (
         <div className="flex justify-center py-12"><div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" /></div>
       ) : filtered.length === 0 ? (
         <div className="text-center py-16 bg-card rounded-xl border border-border">

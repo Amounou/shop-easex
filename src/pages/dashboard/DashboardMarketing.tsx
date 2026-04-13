@@ -1,4 +1,4 @@
-import { Megaphone, Tag, Percent } from "lucide-react";
+import { Tag, Percent } from "lucide-react";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -6,30 +6,29 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Trash2, Pencil } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
+import { useUserStore } from "@/hooks/useUserStore";
 import type { Tables } from "@/integrations/supabase/types";
 
 type Coupon = Tables<"coupons">;
 
 const DashboardMarketing = () => {
   const { toast } = useToast();
+  const { storeId, loading: storeLoading } = useUserStore();
   const [coupons, setCoupons] = useState<Coupon[]>([]);
-  const [storeId, setStoreId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [form, setForm] = useState({ code: "", discount_type: "percentage", discount_value: "", min_order_amount: "" });
   const [saving, setSaving] = useState(false);
 
   const load = async () => {
-    const { data: stores } = await supabase.from("stores").select("id").limit(1);
-    if (!stores?.length) { setLoading(false); return; }
-    setStoreId(stores[0].id);
-    const { data } = await supabase.from("coupons").select("*").eq("store_id", stores[0].id).order("created_at", { ascending: false });
+    if (!storeId) { setLoading(false); return; }
+    const { data } = await supabase.from("coupons").select("*").eq("store_id", storeId).order("created_at", { ascending: false });
     setCoupons(data || []);
     setLoading(false);
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { if (!storeLoading) load(); }, [storeId, storeLoading]);
 
   const handleSave = async () => {
     if (!form.code || !storeId) return;
@@ -70,7 +69,7 @@ const DashboardMarketing = () => {
         </Button>
       </div>
 
-      {loading ? (
+      {loading || storeLoading ? (
         <div className="flex justify-center py-12"><div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" /></div>
       ) : coupons.length === 0 ? (
         <div className="text-center py-16 bg-card rounded-xl border border-border">

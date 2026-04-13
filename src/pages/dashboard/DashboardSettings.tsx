@@ -5,31 +5,22 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Settings, Save } from "lucide-react";
-import type { Tables } from "@/integrations/supabase/types";
-
-type Store = Tables<"stores">;
+import { useUserStore } from "@/hooks/useUserStore";
 
 const DashboardSettings = () => {
   const { toast } = useToast();
-  const [store, setStore] = useState<Store | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { store, loading } = useUserStore();
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({ name: "", description: "", email: "", phone: "", address: "", city: "", country: "" });
 
   useEffect(() => {
-    const load = async () => {
-      const { data } = await supabase.from("stores").select("*").limit(1).single();
-      if (data) {
-        setStore(data);
-        setForm({
-          name: data.name || "", description: data.description || "", email: data.email || "",
-          phone: data.phone || "", address: data.address || "", city: data.city || "", country: data.country || "",
-        });
-      }
-      setLoading(false);
-    };
-    load();
-  }, []);
+    if (store) {
+      setForm({
+        name: store.name || "", description: store.description || "", email: store.email || "",
+        phone: store.phone || "", address: store.address || "", city: store.city || "", country: store.country || "",
+      });
+    }
+  }, [store]);
 
   const handleSave = async () => {
     if (!store) return;
