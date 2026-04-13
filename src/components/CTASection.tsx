@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const CTASection = () => {
   return (
@@ -15,10 +16,12 @@ const CTASection = () => {
         <p className="text-lg text-primary-foreground/80 max-w-xl mx-auto mb-8">
           Rejoignez des milliers d'entrepreneurs africains qui vendent en ligne avec ShopEase.
         </p>
-        <Button variant="hero-outline" size="xl" className="border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary">
-          Créer ma boutique gratuitement
-          <ArrowRight className="w-5 h-5" />
-        </Button>
+        <Link to="/signup">
+          <Button variant="hero-outline" size="xl" className="border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary">
+            Créer ma boutique gratuitement
+            <ArrowRight className="w-5 h-5" />
+          </Button>
+        </Link>
       </div>
     </section>
   );
