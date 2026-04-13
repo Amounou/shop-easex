@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Play } from "lucide-react";
+import { Link } from "react-router-dom";
 import heroDashboard from "@/assets/hero-dashboard.jpg";
 
 const HeroSection = () => {
@@ -26,14 +27,20 @@ const HeroSection = () => {
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-up" style={{ animationDelay: "0.3s" }}>
-            <Button variant="hero" size="xl">
-              Commencer gratuitement
-              <ArrowRight className="w-5 h-5" />
-            </Button>
-            <Button variant="hero-outline" size="xl">
-              <Play className="w-5 h-5" />
-              Voir la démo
-            </Button>
+            <Link to="/signup">
+              <Button variant="hero" size="xl">
+                Commencer gratuitement
+                <ArrowRight className="w-5 h-5" />
+              </Button>
+            </Link>
+            <button
+              onClick={() => document.getElementById("features")?.scrollIntoView({ behavior: "smooth" })}
+            >
+              <Button variant="hero-outline" size="xl">
+                <Play className="w-5 h-5" />
+                Voir la démo
+              </Button>
+            </button>
           </div>
 
           <p className="text-xs text-muted-foreground mt-4 animate-fade-up" style={{ animationDelay: "0.4s" }}>

@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Check } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const plans = [
   {
@@ -101,13 +102,15 @@ const PricingSection = () => {
                 </span>
               </div>
 
-              <Button
-                variant={plan.popular ? "hero" : "hero-outline"}
-                className="w-full mb-6"
-                size="lg"
-              >
-                {plan.cta}
-              </Button>
+              <Link to="/signup">
+                <Button
+                  variant={plan.popular ? "hero" : "hero-outline"}
+                  className="w-full mb-6"
+                  size="lg"
+                >
+                  {plan.cta}
+                </Button>
+              </Link>
 
               <ul className="space-y-3">
                 {plan.features.map((feature) => (
