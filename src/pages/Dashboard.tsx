@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { ShoppingBag, LayoutDashboard, Package, ShoppingCart, BarChart3, Settings, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -87,10 +87,12 @@ const Dashboard = () => {
           <p className="text-muted-foreground mb-6 max-w-md mx-auto">
             Commencez par créer votre première boutique pour vendre vos produits en ligne.
           </p>
-          <Button variant="hero" size="lg">
-            <Settings className="w-4 h-4" />
-            Créer ma boutique
-          </Button>
+          <Link to="/create-store">
+            <Button variant="hero" size="lg">
+              <Settings className="w-4 h-4" />
+              Créer ma boutique
+            </Button>
+          </Link>
         </div>
       </main>
     </div>
