@@ -32,15 +32,10 @@ const StorePage = () => {
         const { data } = await supabase.from("stores").select("*").eq("slug", slug).limit(1).single();
         storeData = data;
       } else {
-        // No slug: try to load the current user's store first
+        // No slug: load only the current user's own store
         const { data: { session } } = await supabase.auth.getSession();
         if (session?.user) {
           const { data } = await supabase.from("stores").select("*").eq("owner_id", session.user.id).limit(1).single();
-          storeData = data;
-        }
-        // Fallback: first active store
-        if (!storeData) {
-          const { data } = await supabase.from("stores").select("*").eq("status", "active").limit(1).single();
           storeData = data;
         }
       }
