@@ -39,8 +39,8 @@ const Signup = () => {
     if (error) {
       toast({ title: "Erreur d'inscription", description: error.message, variant: "destructive" });
     } else {
-      toast({ title: "Compte créé !", description: "Vérifiez votre email pour confirmer votre inscription." });
-      navigate("/login");
+      toast({ title: "Compte créé ! 🎉", description: "Bienvenue sur ShopEase." });
+      navigate("/dashboard");
     }
   };
 
