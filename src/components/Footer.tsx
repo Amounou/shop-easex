@@ -1,5 +1,5 @@
-import { ShoppingBag } from "lucide-react";
 import { Link } from "react-router-dom";
+import logo from "@/assets/logo-shopease.png.asset.json";
 
 const Footer = () => {
   return (
@@ -8,10 +8,7 @@ const Footer = () => {
         <div className="grid md:grid-cols-4 gap-8 mb-12">
           <div>
             <Link to="/" className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-                <ShoppingBag className="w-4 h-4 text-primary-foreground" />
-              </div>
-              <span className="text-lg font-bold text-background">ShopEase</span>
+              <img src={logo.url} alt="ShopEase" className="h-9 w-auto bg-background rounded-md p-1" />
             </Link>
             <p className="text-sm text-background/60 leading-relaxed">
               La plateforme e-commerce pensée pour l'Afrique. Créez, vendez, grandissez.
