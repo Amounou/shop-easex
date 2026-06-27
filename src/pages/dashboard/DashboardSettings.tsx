@@ -1,75 +1,100 @@
-import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { useToast } from "@/hooks/use-toast";
-import { Settings, Save } from "lucide-react";
-import { useUserStore } from "@/hooks/useUserStore";
+import { Link } from "react-router-dom";
+import {
+  Settings, UserSquare2, Palette, Globe, StickyNote, Search, Code2,
+  Bell, Headphones, User, Users, CreditCard, UserCog, Trash2, ArrowRight, ArrowUpRight
+} from "lucide-react";
+
+type Item = {
+  title: string;
+  desc: string;
+  icon: React.ElementType;
+  to: string;
+  iconBg: string;
+  iconColor: string;
+  badge?: string;
+  external?: boolean;
+};
+
+const sections: { title: string; items: Item[] }[] = [
+  {
+    title: "Boutique",
+    items: [
+      { title: "Identité de la boutique", desc: "Définissez le nom, le logo, la description et les réseaux sociaux de votre boutique.", icon: Settings, to: "/dashboard/settings/identity", iconBg: "bg-rose-100", iconColor: "text-rose-500" },
+      { title: "Profil du Créateur", desc: "Personnalisez votre profil créateur pour mettre en valeur votre expertise et vous connecter avec les clients.", icon: UserSquare2, to: "/dashboard/settings/creator-profile", iconBg: "bg-emerald-100", iconColor: "text-emerald-600", badge: "Nouveau" },
+      { title: "Apparence & Thème", desc: "Modifiez le thème, les couleurs, la typographie et la mise en page de votre boutique.", icon: Palette, to: "/dashboard/settings/appearance", iconBg: "bg-yellow-100", iconColor: "text-yellow-600", badge: "Nouveau" },
+      { title: "Nom de domaine", desc: "Connectez et personnalisez le nom de domaine de votre boutique.", icon: Globe, to: "/dashboard/settings/domain", iconBg: "bg-teal-100", iconColor: "text-teal-600" },
+      { title: "Pages", desc: "Créez et gérez vos pages de contenu (mentions légales, politique de confidentialité, etc.).", icon: StickyNote, to: "/dashboard/settings/pages", iconBg: "bg-violet-100", iconColor: "text-violet-600" },
+    ],
+  },
+  {
+    title: "Marketing",
+    items: [
+      { title: "SEO & Référencement", desc: "Optimisez les titres, descriptions et métadonnées pour les moteurs de recherche.", icon: Search, to: "/dashboard/settings/seo", iconBg: "bg-sky-100", iconColor: "text-sky-600" },
+      { title: "Pixels et Tracking", desc: "Connectez Facebook Pixel, Google Tag Manager, TikTok Pixel et ajoutez vos propres scripts de suivi.", icon: Code2, to: "/dashboard/settings/tracking", iconBg: "bg-emerald-100", iconColor: "text-emerald-600" },
+    ],
+  },
+  {
+    title: "Communication",
+    items: [
+      { title: "Notifications", desc: "Gérez les alertes email et Telegram pour suivre l'activité de votre boutique.", icon: Bell, to: "/dashboard/settings/notifications", iconBg: "bg-emerald-100", iconColor: "text-emerald-600" },
+      { title: "Support client", desc: "Configurez vos informations de contact et les options de support pour vos clients.", icon: Headphones, to: "/dashboard/settings/support", iconBg: "bg-yellow-100", iconColor: "text-yellow-600" },
+    ],
+  },
+  {
+    title: "Comptes",
+    items: [
+      { title: "Mon Profil", desc: "Gérez vos informations personnelles, mot de passe et préférences de connexion.", icon: User, to: "/dashboard/settings/profile", iconBg: "bg-yellow-100", iconColor: "text-yellow-600", external: true },
+      { title: "Équipe & Collaborateurs", desc: "Gérez vos collaborateurs, ajoutez de nouveaux membres et suivez leur activité sur votre boutique.", icon: Users, to: "/dashboard/settings/team", iconBg: "bg-blue-100", iconColor: "text-blue-600" },
+      { title: "Facturation", desc: "Suivez votre progression et augmentez vos revenus", icon: CreditCard, to: "/dashboard/settings/billing", iconBg: "bg-emerald-100", iconColor: "text-emerald-600" },
+      { title: "Transferts de propriété", desc: "Gérez les demandes de transfert de propriété de la boutique et suivez leur statut.", icon: UserCog, to: "/dashboard/settings/transfers", iconBg: "bg-rose-100", iconColor: "text-rose-500", badge: "Nouveau" },
+      { title: "Suppression du compte", desc: "Gérez votre compte personnel, y compris sa suppression.", icon: Trash2, to: "/dashboard/settings/delete-account", iconBg: "bg-pink-100", iconColor: "text-pink-500" },
+    ],
+  },
+];
+
+const SettingCard = ({ item }: { item: Item }) => {
+  const Icon = item.icon;
+  const Arrow = item.external ? ArrowUpRight : ArrowRight;
+  return (
+    <Link
+      to={item.to}
+      className="group relative flex items-start gap-4 rounded-xl border border-border bg-card p-5 transition-all hover:border-primary/40 hover:shadow-md"
+    >
+      {item.badge && (
+        <span className="absolute -top-2 right-4 rounded-full bg-rose-500 px-2 py-0.5 text-[10px] font-semibold text-white">
+          {item.badge}
+        </span>
+      )}
+      <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${item.iconBg}`}>
+        <Icon className={`h-5 w-5 ${item.iconColor}`} />
+      </div>
+      <div className="flex-1 min-w-0">
+        <h3 className="font-semibold text-foreground">{item.title}</h3>
+        <p className="mt-1 text-sm text-muted-foreground line-clamp-2">{item.desc}</p>
+      </div>
+      <Arrow className="mt-1 h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
+    </Link>
+  );
+};
 
 const DashboardSettings = () => {
-  const { toast } = useToast();
-  const { store, loading } = useUserStore();
-  const [saving, setSaving] = useState(false);
-  const [form, setForm] = useState({ name: "", description: "", email: "", phone: "", address: "", city: "", country: "" });
-
-  useEffect(() => {
-    if (store) {
-      setForm({
-        name: store.name || "", description: store.description || "", email: store.email || "",
-        phone: store.phone || "", address: store.address || "", city: store.city || "", country: store.country || "",
-      });
-    }
-  }, [store]);
-
-  const handleSave = async () => {
-    if (!store) return;
-    setSaving(true);
-    const { error } = await supabase.from("stores").update(form).eq("id", store.id);
-    if (error) toast({ title: "Erreur", description: error.message, variant: "destructive" });
-    else toast({ title: "Paramètres sauvegardés" });
-    setSaving(false);
-  };
-
-  if (loading) return <div className="flex justify-center py-12"><div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" /></div>;
-
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold text-foreground mb-1">Paramètres</h1>
-      <p className="text-muted-foreground mb-6">Configurez votre boutique</p>
+    <div className="p-6 md:p-8 max-w-6xl mx-auto">
+      <h1 className="text-3xl font-bold text-foreground mb-1">Paramètres</h1>
+      <p className="text-muted-foreground mb-8">Configurez votre boutique et votre compte</p>
 
-      {!store ? (
-        <div className="text-center py-16 bg-card rounded-xl border border-border">
-          <Settings className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-          <p className="text-muted-foreground">Créez d'abord une boutique pour accéder aux paramètres</p>
-        </div>
-      ) : (
-        <div className="max-w-2xl space-y-6">
-          <div className="bg-card rounded-xl border border-border p-6 space-y-4">
-            <h2 className="font-semibold text-foreground">Informations générales</h2>
-            <div><Label>Nom de la boutique</Label><Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></div>
-            <div><Label>Description</Label><Input value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} /></div>
-          </div>
-          <div className="bg-card rounded-xl border border-border p-6 space-y-4">
-            <h2 className="font-semibold text-foreground">Contact</h2>
-            <div className="grid sm:grid-cols-2 gap-4">
-              <div><Label>Email</Label><Input value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} /></div>
-              <div><Label>Téléphone</Label><Input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} /></div>
+      <div className="space-y-10">
+        {sections.map((section) => (
+          <section key={section.title}>
+            <h2 className="mb-4 font-serif text-2xl text-foreground">{section.title}</h2>
+            <div className="grid gap-4 md:grid-cols-2">
+              {section.items.map((item) => (
+                <SettingCard key={item.title} item={item} />
+              ))}
             </div>
-          </div>
-          <div className="bg-card rounded-xl border border-border p-6 space-y-4">
-            <h2 className="font-semibold text-foreground">Adresse</h2>
-            <div><Label>Adresse</Label><Input value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} /></div>
-            <div className="grid sm:grid-cols-2 gap-4">
-              <div><Label>Ville</Label><Input value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} /></div>
-              <div><Label>Pays</Label><Input value={form.country} onChange={(e) => setForm({ ...form, country: e.target.value })} /></div>
-            </div>
-          </div>
-          <Button onClick={handleSave} disabled={saving} size="lg">
-            <Save className="w-4 h-4" /> {saving ? "Sauvegarde..." : "Sauvegarder"}
-          </Button>
-        </div>
-      )}
+          </section>
+        ))}
+      </div>
     </div>
   );
 };
