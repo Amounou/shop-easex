@@ -43,7 +43,7 @@ const sections: { title: string; items: Item[] }[] = [
   {
     title: "Comptes",
     items: [
-      { title: "Mon Profil", desc: "Gérez vos informations personnelles, mot de passe et préférences de connexion.", icon: User, to: "/dashboard/settings/profile", iconBg: "bg-yellow-100", iconColor: "text-yellow-600", external: true },
+      { title: "Mon Profil", desc: "Gérez vos informations personnelles, mot de passe et préférences de connexion.", icon: User, to: "/dashboard/settings/profile", iconBg: "bg-yellow-100", iconColor: "text-yellow-600" },
       { title: "Équipe & Collaborateurs", desc: "Gérez vos collaborateurs, ajoutez de nouveaux membres et suivez leur activité sur votre boutique.", icon: Users, to: "/dashboard/settings/team", iconBg: "bg-blue-100", iconColor: "text-blue-600" },
       { title: "Facturation", desc: "Suivez votre progression et augmentez vos revenus", icon: CreditCard, to: "/dashboard/settings/billing", iconBg: "bg-emerald-100", iconColor: "text-emerald-600" },
       { title: "Transferts de propriété", desc: "Gérez les demandes de transfert de propriété de la boutique et suivez leur statut.", icon: UserCog, to: "/dashboard/settings/transfers", iconBg: "bg-rose-100", iconColor: "text-rose-500", badge: "Nouveau" },
