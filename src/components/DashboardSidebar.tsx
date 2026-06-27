@@ -2,7 +2,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import {
   Home, ShoppingCart, Package, Users, DollarSign, BarChart3,
   Megaphone, Star, Zap, MoreHorizontal, Image, Download,
-  Settings, HelpCircle, ChevronDown, LogOut, Eye, ShoppingBag,
+  Settings, HelpCircle, ChevronDown, LogOut, Eye,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import {
@@ -58,10 +58,12 @@ export function DashboardSidebar() {
     <Sidebar collapsible="icon" className="border-r border-border">
       <SidebarContent className="pt-4">
         <div className="flex items-center gap-2 px-4 mb-4">
-          <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center flex-shrink-0">
-            <ShoppingBag className="w-4 h-4 text-primary-foreground" />
-          </div>
-          {!collapsed && <span className="text-lg font-bold text-foreground">{store?.name || "ShopEase"}</span>}
+          {store?.logo_url ? (
+            <img src={store.logo_url} alt={store.name} className="w-8 h-8 rounded-lg object-cover flex-shrink-0" />
+          ) : (
+            <img src={logoAsset.url} alt="ShopEase" className="w-8 h-8 rounded-lg object-contain flex-shrink-0" />
+          )}
+          {!collapsed && <span className="text-lg font-bold text-foreground truncate">{store?.name || "ShopEase"}</span>}
         </div>
 
         <SidebarGroup>

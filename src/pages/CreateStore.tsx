@@ -4,7 +4,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ShoppingBag, ArrowLeft, ArrowRight, Store, Palette, MapPin, Check, Upload, Crown, Sparkles, Zap } from "lucide-react";
+import { ArrowLeft, ArrowRight, Store, Palette, MapPin, Check, Upload, Crown, Sparkles, Zap } from "lucide-react";
+import logo from "@/assets/logo-shopease.png.asset.json";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -199,10 +200,7 @@ const CreateStore = () => {
       <header className="border-b border-border bg-card/80 backdrop-blur-lg">
         <div className="container mx-auto flex items-center justify-between h-16 px-4">
           <Link to="/dashboard" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-              <ShoppingBag className="w-4 h-4 text-primary-foreground" />
-            </div>
-            <span className="text-lg font-bold text-foreground">ShopEase</span>
+            <img src={logo.url} alt="ShopEase" className="h-9 w-auto" />
           </Link>
           <Link to="/dashboard" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
             Annuler
