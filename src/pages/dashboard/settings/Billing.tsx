@@ -28,7 +28,11 @@ const Billing = () => {
     if (!store) return;
     const { error } = current
       ? await supabase.from("store_subscriptions").update({ plan_id: planId, status: "active" }).eq("store_id", store.id)
-      : await supabase.from("store_subscriptions").insert({ store_id: store.id, plan_id: planId, status: "active" });
+      : await supabase.from("store_subscriptions").insert([{
+          store_id: store.id, plan_id: planId, status: "active",
+          current_period_start: new Date().toISOString(),
+          current_period_end: new Date(Date.now() + 30 * 24 * 3600 * 1000).toISOString(),
+        }]);
     toast({ title: error ? "Erreur" : "Forfait mis à jour", description: error?.message, variant: error ? "destructive" : "default" });
     if (!error) load();
   };
