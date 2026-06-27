@@ -2,7 +2,8 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ShoppingBag, Mail, ArrowLeft } from "lucide-react";
+import { Mail, ArrowLeft } from "lucide-react";
+import logo from "@/assets/logo-shopease.png.asset.json";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -40,10 +41,8 @@ const ForgotPassword = () => {
         </Link>
 
         <div className="bg-card rounded-2xl border border-border p-8 shadow-sm">
-          <div className="flex items-center gap-2 justify-center mb-6">
-            <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
-              <ShoppingBag className="w-5 h-5 text-primary-foreground" />
-            </div>
+          <div className="flex items-center justify-center mb-6">
+            <img src={logo.url} alt="ShopEase" className="h-12 w-auto" />
           </div>
 
           {sent ? (

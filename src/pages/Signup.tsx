@@ -2,7 +2,8 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ShoppingBag, Mail, Lock, User, Eye, EyeOff, ArrowLeft } from "lucide-react";
+import { Mail, Lock, User, Eye, EyeOff, ArrowLeft } from "lucide-react";
+import logo from "@/assets/logo-shopease.png.asset.json";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -66,11 +67,8 @@ const Signup = () => {
         </Link>
 
         <div className="bg-card rounded-2xl border border-border p-8 shadow-sm">
-          <div className="flex items-center gap-2 justify-center mb-6">
-            <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
-              <ShoppingBag className="w-5 h-5 text-primary-foreground" />
-            </div>
-            <span className="text-2xl font-bold text-foreground">ShopEase</span>
+          <div className="flex items-center justify-center mb-6">
+            <img src={logo.url} alt="ShopEase" className="h-12 w-auto" />
           </div>
 
           <h1 className="text-xl font-bold text-center text-foreground mb-1">Créez votre boutique</h1>

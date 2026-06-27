@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ShoppingBag, Lock, Eye, EyeOff } from "lucide-react";
+import { Lock, Eye, EyeOff } from "lucide-react";
+import logo from "@/assets/logo-shopease.png.asset.json";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -42,10 +43,8 @@ const ResetPassword = () => {
     <div className="min-h-screen bg-hero flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         <div className="bg-card rounded-2xl border border-border p-8 shadow-sm">
-          <div className="flex items-center gap-2 justify-center mb-6">
-            <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
-              <ShoppingBag className="w-5 h-5 text-primary-foreground" />
-            </div>
+          <div className="flex items-center justify-center mb-6">
+            <img src={logo.url} alt="ShopEase" className="h-12 w-auto" />
           </div>
           <h1 className="text-xl font-bold text-center text-foreground mb-1">Nouveau mot de passe</h1>
           <p className="text-sm text-muted-foreground text-center mb-6">Choisissez un nouveau mot de passe sécurisé</p>
