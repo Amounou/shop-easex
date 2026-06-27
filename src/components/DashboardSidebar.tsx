@@ -4,6 +4,7 @@ import {
   Megaphone, Star, Zap, MoreHorizontal, Image, Download,
   Settings, HelpCircle, ChevronDown, LogOut, Eye,
 } from "lucide-react";
+import logoAsset from "@/assets/logo-shopease.png.asset.json";
 import { NavLink } from "@/components/NavLink";
 import {
   Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent,
