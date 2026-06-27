@@ -22,6 +22,20 @@ import DashboardAutomations from "./pages/dashboard/DashboardAutomations";
 import DashboardMedia from "./pages/dashboard/DashboardMedia";
 import DashboardExports from "./pages/dashboard/DashboardExports";
 import DashboardSettings from "./pages/dashboard/DashboardSettings";
+import SettingsIdentity from "./pages/dashboard/settings/Identity";
+import SettingsCreatorProfile from "./pages/dashboard/settings/CreatorProfile";
+import SettingsAppearance from "./pages/dashboard/settings/Appearance";
+import SettingsDomain from "./pages/dashboard/settings/Domain";
+import SettingsPages from "./pages/dashboard/settings/Pages";
+import SettingsSeo from "./pages/dashboard/settings/Seo";
+import SettingsTracking from "./pages/dashboard/settings/Tracking";
+import SettingsNotifications from "./pages/dashboard/settings/Notifications";
+import SettingsSupport from "./pages/dashboard/settings/Support";
+import SettingsProfile from "./pages/dashboard/settings/Profile";
+import SettingsTeam from "./pages/dashboard/settings/Team";
+import SettingsBilling from "./pages/dashboard/settings/Billing";
+import SettingsTransfers from "./pages/dashboard/settings/Transfers";
+import SettingsDeleteAccount from "./pages/dashboard/settings/DeleteAccount";
 import FAQ from "./pages/FAQ";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
@@ -60,6 +74,20 @@ const App = () => (
               <Route path="media" element={<DashboardMedia />} />
               <Route path="exports" element={<DashboardExports />} />
               <Route path="settings" element={<DashboardSettings />} />
+              <Route path="settings/identity" element={<SettingsIdentity />} />
+              <Route path="settings/creator-profile" element={<SettingsCreatorProfile />} />
+              <Route path="settings/appearance" element={<SettingsAppearance />} />
+              <Route path="settings/domain" element={<SettingsDomain />} />
+              <Route path="settings/pages" element={<SettingsPages />} />
+              <Route path="settings/seo" element={<SettingsSeo />} />
+              <Route path="settings/tracking" element={<SettingsTracking />} />
+              <Route path="settings/notifications" element={<SettingsNotifications />} />
+              <Route path="settings/support" element={<SettingsSupport />} />
+              <Route path="settings/profile" element={<SettingsProfile />} />
+              <Route path="settings/team" element={<SettingsTeam />} />
+              <Route path="settings/billing" element={<SettingsBilling />} />
+              <Route path="settings/transfers" element={<SettingsTransfers />} />
+              <Route path="settings/delete-account" element={<SettingsDeleteAccount />} />
             </Route>
             <Route path="/faq" element={<FAQ />} />
             <Route path="/terms" element={<Terms />} />
