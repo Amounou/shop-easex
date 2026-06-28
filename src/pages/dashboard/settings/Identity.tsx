@@ -8,12 +8,14 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserStore } from "@/hooks/useUserStore";
 import { SettingsSubPage } from "./SettingsSubPage";
+import { Upload, ImageIcon, Loader2 } from "lucide-react";
 
 const Identity = () => {
   const { store, loading } = useUserStore();
   const { toast } = useToast();
   const [form, setForm] = useState({ name: "", description: "", logo_url: "", email: "", phone: "", address: "", city: "", country: "", currency: "XOF" });
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     if (store) setForm({
@@ -33,13 +35,66 @@ const Identity = () => {
 
   const set = (k: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => setForm({ ...form, [k]: e.target.value });
 
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !store) return;
+    if (!file.type.startsWith("image/")) {
+      toast({ title: "Format invalide", description: "Sélectionnez une image (PNG, JPG, SVG...)", variant: "destructive" });
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast({ title: "Fichier trop volumineux", description: "Taille maximum : 5 Mo", variant: "destructive" });
+      return;
+    }
+    setUploading(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) throw new Error("Non authentifié");
+      const ext = file.name.split(".").pop() || "png";
+      const path = `${session.user.id}/${store.id}-${Date.now()}.${ext}`;
+      const { error: upErr } = await supabase.storage.from("store-logos").upload(path, file, { upsert: true, contentType: file.type });
+      if (upErr) throw upErr;
+      const { data: signed, error: signErr } = await supabase.storage
+        .from("store-logos")
+        .createSignedUrl(path, 60 * 60 * 24 * 365 * 10); // 10 ans
+      if (signErr || !signed) throw signErr || new Error("URL introuvable");
+      setForm((f) => ({ ...f, logo_url: signed.signedUrl }));
+      toast({ title: "Logo téléversé", description: "N'oubliez pas d'enregistrer." });
+    } catch (err: any) {
+      toast({ title: "Erreur", description: err.message, variant: "destructive" });
+    } finally {
+      setUploading(false);
+      e.target.value = "";
+    }
+  };
+
   return (
     <SettingsSubPage title="Identité de la boutique" description="Nom, logo, description et coordonnées de votre boutique."
       actions={<Button onClick={save} disabled={saving || loading || !store}>{saving ? "Enregistrement..." : "Enregistrer"}</Button>}>
       <Card><CardContent className="p-6 grid gap-4 md:grid-cols-2">
         <div className="md:col-span-2"><Label>Nom de la boutique</Label><Input value={form.name} onChange={set("name")} /></div>
         <div className="md:col-span-2"><Label>Description</Label><Textarea rows={3} value={form.description} onChange={set("description")} /></div>
-        <div className="md:col-span-2"><Label>URL du logo</Label><Input value={form.logo_url} onChange={set("logo_url")} placeholder="https://..." /></div>
+        <div className="md:col-span-2 space-y-2">
+          <Label>Logo de la boutique</Label>
+          <div className="flex items-center gap-4">
+            <div className="w-20 h-20 rounded-lg border border-border bg-muted flex items-center justify-center overflow-hidden shrink-0">
+              {form.logo_url ? (
+                <img src={form.logo_url} alt="Logo" className="w-full h-full object-contain" />
+              ) : (
+                <ImageIcon className="w-8 h-8 text-muted-foreground" />
+              )}
+            </div>
+            <div className="flex-1 space-y-2">
+              <label className="inline-flex items-center gap-2 px-4 h-10 rounded-lg border border-input bg-background hover:bg-accent text-sm font-medium cursor-pointer transition-colors">
+                {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                {uploading ? "Téléversement..." : "Choisir une image"}
+                <input type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} disabled={uploading || !store} />
+              </label>
+              <Input value={form.logo_url} onChange={set("logo_url")} placeholder="ou collez une URL https://..." />
+            </div>
+          </div>
+          <p className="text-xs text-muted-foreground">PNG, JPG ou SVG • 5 Mo maximum</p>
+        </div>
         <div><Label>Email</Label><Input type="email" value={form.email} onChange={set("email")} /></div>
         <div><Label>Téléphone</Label><Input value={form.phone} onChange={set("phone")} /></div>
         <div className="md:col-span-2"><Label>Adresse</Label><Input value={form.address} onChange={set("address")} /></div>
