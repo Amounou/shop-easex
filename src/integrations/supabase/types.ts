@@ -540,6 +540,7 @@ export type Database = {
           slug: string
           status: string
           terms_conditions: string | null
+          theme: string
           updated_at: string
         }
         Insert: {
@@ -558,6 +559,7 @@ export type Database = {
           slug: string
           status?: string
           terms_conditions?: string | null
+          theme?: string
           updated_at?: string
         }
         Update: {
@@ -576,6 +578,7 @@ export type Database = {
           slug?: string
           status?: string
           terms_conditions?: string | null
+          theme?: string
           updated_at?: string
         }
         Relationships: []
