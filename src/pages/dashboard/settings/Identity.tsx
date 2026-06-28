@@ -54,8 +54,11 @@ const Identity = () => {
       const path = `${session.user.id}/${store.id}-${Date.now()}.${ext}`;
       const { error: upErr } = await supabase.storage.from("store-logos").upload(path, file, { upsert: true, contentType: file.type });
       if (upErr) throw upErr;
-      const { data } = supabase.storage.from("store-logos").getPublicUrl(path);
-      setForm((f) => ({ ...f, logo_url: data.publicUrl }));
+      const { data: signed, error: signErr } = await supabase.storage
+        .from("store-logos")
+        .createSignedUrl(path, 60 * 60 * 24 * 365 * 10); // 10 ans
+      if (signErr || !signed) throw signErr || new Error("URL introuvable");
+      setForm((f) => ({ ...f, logo_url: signed.signedUrl }));
       toast({ title: "Logo téléversé", description: "N'oubliez pas d'enregistrer." });
     } catch (err: any) {
       toast({ title: "Erreur", description: err.message, variant: "destructive" });
