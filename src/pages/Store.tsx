@@ -7,6 +7,7 @@ import { ShoppingBag, ShoppingCart, Search, Filter } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import CartDrawer from "@/components/CartDrawer";
 import type { Tables } from "@/integrations/supabase/types";
+import TechOneStore from "@/components/store/themes/TechOneStore";
 
 type Product = Tables<"products"> & { product_images: Tables<"product_images">[] };
 type Category = Tables<"categories">;
@@ -93,6 +94,15 @@ const StorePage = () => {
         <Link to="/"><Button>Retour à l'accueil</Button></Link>
       </div>
     );
+  }
+
+  // Theme dispatch
+  const themedProps = {
+    store, products, categories, selectedCategory, setSelectedCategory,
+    search, setSearch, onAdd: handleAdd, formatPrice,
+  };
+  if ((store as any).theme === "techone") {
+    return (<><CartDrawer /><TechOneStore {...themedProps} /></>);
   }
 
   return (

@@ -1,0 +1,1 @@
+ALTER TABLE public.stores ADD COLUMN IF NOT EXISTS theme TEXT NOT NULL DEFAULT 'default';
