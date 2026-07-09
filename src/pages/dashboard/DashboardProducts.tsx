@@ -3,33 +3,50 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Search, Plus, Pencil, Trash2, Package } from "lucide-react";
+import { Search, Plus, Pencil, Trash2, Package, Upload, X } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { useUserStore } from "@/hooks/useUserStore";
 import type { Tables } from "@/integrations/supabase/types";
 
 type Product = Tables<"products">;
+type Category = Tables<"categories">;
 
 const DashboardProducts = () => {
   const { toast } = useToast();
   const { storeId, loading: storeLoading } = useUserStore();
   const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Product | null>(null);
-  const [form, setForm] = useState({ name: "", price: "", stock: "", description: "", sku: "" });
+  const [form, setForm] = useState({
+    name: "",
+    slug: "",
+    description: "",
+    price: "",
+    compare_at_price: "",
+    stock: "",
+    category_id: "",
+    featured: false,
+    status: "active" as "active" | "draft",
+  });
+  const [images, setImages] = useState<string[]>([]);
+  const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
 
   const load = async () => {
     if (!storeId) { setLoading(false); return; }
-    const { data } = await supabase
-      .from("products")
-      .select("*")
-      .eq("store_id", storeId)
-      .order("created_at", { ascending: false });
-    setProducts(data || []);
+    const [{ data: prods }, { data: cats }] = await Promise.all([
+      supabase.from("products").select("*").eq("store_id", storeId).order("created_at", { ascending: false }),
+      supabase.from("categories").select("*").eq("store_id", storeId).order("name"),
+    ]);
+    setProducts(prods || []);
+    setCategories(cats || []);
     setLoading(false);
   };
 
@@ -39,40 +56,93 @@ const DashboardProducts = () => {
 
   const openNew = () => {
     setEditing(null);
-    setForm({ name: "", price: "", stock: "", description: "", sku: "" });
+    setForm({ name: "", slug: "", description: "", price: "", compare_at_price: "", stock: "", category_id: "", featured: false, status: "active" });
+    setImages([]);
     setDialogOpen(true);
   };
 
-  const openEdit = (p: Product) => {
+  const openEdit = async (p: Product) => {
     setEditing(p);
-    setForm({ name: p.name, price: String(p.price), stock: String(p.stock), description: p.description || "", sku: p.sku || "" });
+    setForm({
+      name: p.name,
+      slug: p.slug,
+      description: p.description || "",
+      price: String(p.price),
+      compare_at_price: p.compare_at_price != null ? String(p.compare_at_price) : "",
+      stock: String(p.stock),
+      category_id: p.category_id || "",
+      featured: p.featured,
+      status: (p.status as "active" | "draft") || "active",
+    });
+    const { data: imgs } = await supabase
+      .from("product_images")
+      .select("url")
+      .eq("product_id", p.id)
+      .order("sort_order");
+    setImages((imgs || []).map((i) => i.url));
     setDialogOpen(true);
   };
 
   const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 
+  const handleUpload = async (files: FileList | null) => {
+    if (!files || !storeId) return;
+    setUploading(true);
+    try {
+      const uploaded: string[] = [];
+      for (const file of Array.from(files)) {
+        const ext = file.name.split(".").pop();
+        const path = `${storeId}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+        const { error } = await supabase.storage.from("product-images").upload(path, file);
+        if (error) throw error;
+        const { data: signed } = await supabase.storage
+          .from("product-images")
+          .createSignedUrl(path, 60 * 60 * 24 * 365 * 10);
+        if (signed?.signedUrl) uploaded.push(signed.signedUrl);
+      }
+      setImages((prev) => [...prev, ...uploaded]);
+    } catch (err: any) {
+      toast({ title: "Erreur upload", description: err.message, variant: "destructive" });
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const handleSave = async () => {
     if (!form.name || !storeId) return;
     setSaving(true);
     try {
+      const slug = (form.slug ? slugify(form.slug) : slugify(form.name)) + (editing ? "" : "-" + Date.now());
       const payload = {
         name: form.name,
-        slug: slugify(form.name) + "-" + Date.now(),
+        slug,
         price: parseFloat(form.price) || 0,
+        compare_at_price: form.compare_at_price ? parseFloat(form.compare_at_price) : null,
         stock: parseInt(form.stock) || 0,
         description: form.description || null,
-        sku: form.sku || null,
+        category_id: form.category_id || null,
+        featured: form.featured,
         store_id: storeId,
-        status: "active" as const,
+        status: form.status,
       };
+      let productId = editing?.id;
       if (editing) {
         const { error } = await supabase.from("products").update(payload).eq("id", editing.id);
         if (error) throw error;
         toast({ title: "Produit mis à jour" });
       } else {
-        const { error } = await supabase.from("products").insert(payload);
+        const { data, error } = await supabase.from("products").insert(payload).select("id").single();
         if (error) throw error;
+        productId = data.id;
         toast({ title: "Produit créé" });
+      }
+      if (productId) {
+        await supabase.from("product_images").delete().eq("product_id", productId);
+        if (images.length > 0) {
+          await supabase.from("product_images").insert(
+            images.map((url, i) => ({ product_id: productId!, url, sort_order: i }))
+          );
+        }
       }
       setDialogOpen(false);
       load();
@@ -153,18 +223,83 @@ const DashboardProducts = () => {
       )}
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editing ? "Modifier le produit" : "Nouveau produit"}</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4">
-            <div><Label>Nom *</Label><Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></div>
+          <div className="space-y-5">
             <div className="grid grid-cols-2 gap-4">
-              <div><Label>Prix (FCFA)</Label><Input type="number" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} /></div>
-              <div><Label>Stock</Label><Input type="number" value={form.stock} onChange={(e) => setForm({ ...form, stock: e.target.value })} /></div>
+              <div className="space-y-2">
+                <Label>Nom</Label>
+                <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+              </div>
+              <div className="space-y-2">
+                <Label>Slug (URL)</Label>
+                <Input placeholder="auto" value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value })} />
+              </div>
             </div>
-            <div><Label>SKU</Label><Input value={form.sku} onChange={(e) => setForm({ ...form, sku: e.target.value })} /></div>
-            <div><Label>Description</Label><Input value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} /></div>
+            <div className="space-y-2">
+              <Label>Description</Label>
+              <Textarea rows={4} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
+            </div>
+            <div className="grid grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <Label>Prix (FCFA)</Label>
+                <Input type="number" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} />
+              </div>
+              <div className="space-y-2">
+                <Label>Prix barré</Label>
+                <Input type="number" value={form.compare_at_price} onChange={(e) => setForm({ ...form, compare_at_price: e.target.value })} />
+              </div>
+              <div className="space-y-2">
+                <Label>Stock</Label>
+                <Input type="number" value={form.stock} onChange={(e) => setForm({ ...form, stock: e.target.value })} />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label>Catégorie</Label>
+              <Select value={form.category_id || "none"} onValueChange={(v) => setForm({ ...form, category_id: v === "none" ? "" : v })}>
+                <SelectTrigger><SelectValue placeholder="Choisir..." /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Aucune</SelectItem>
+                  {categories.map((c) => (
+                    <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Images du produit</Label>
+              <div className="flex flex-wrap gap-3">
+                {images.map((url, i) => (
+                  <div key={i} className="relative w-28 h-28 rounded-lg border border-border overflow-hidden group">
+                    <img src={url} alt="" className="w-full h-full object-cover" />
+                    <button
+                      type="button"
+                      onClick={() => setImages((prev) => prev.filter((_, idx) => idx !== i))}
+                      className="absolute top-1 right-1 bg-background/90 rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                ))}
+                <label className="w-28 h-28 rounded-lg border-2 border-dashed border-border flex flex-col items-center justify-center gap-1 cursor-pointer hover:bg-secondary/40 transition-colors">
+                  <Upload className="w-5 h-5 text-muted-foreground" />
+                  <span className="text-xs text-muted-foreground">{uploading ? "..." : "Ajouter"}</span>
+                  <input type="file" accept="image/*" multiple className="hidden" onChange={(e) => handleUpload(e.target.files)} />
+                </label>
+              </div>
+            </div>
+            <div className="flex items-center gap-6 pt-2">
+              <div className="flex items-center gap-2">
+                <Switch checked={form.featured} onCheckedChange={(v) => setForm({ ...form, featured: v })} />
+                <Label className="cursor-pointer">En vedette</Label>
+              </div>
+              <div className="flex items-center gap-2">
+                <Switch checked={form.status === "active"} onCheckedChange={(v) => setForm({ ...form, status: v ? "active" : "draft" })} />
+                <Label className="cursor-pointer">Actif</Label>
+              </div>
+            </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>Annuler</Button>
