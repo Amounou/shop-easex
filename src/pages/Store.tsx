@@ -8,6 +8,8 @@ import { Input } from "@/components/ui/input";
 import CartDrawer from "@/components/CartDrawer";
 import type { Tables } from "@/integrations/supabase/types";
 import TechOneStore from "@/components/store/themes/TechOneStore";
+import ClassicStore from "@/components/store/themes/ClassicStore";
+import MinimalStore from "@/components/store/themes/MinimalStore";
 
 type Product = Tables<"products"> & { product_images: Tables<"product_images">[] };
 type Category = Tables<"categories">;
@@ -103,6 +105,12 @@ const StorePage = () => {
   };
   if ((store as any).theme === "techone") {
     return (<><CartDrawer /><TechOneStore {...themedProps} /></>);
+  }
+  if ((store as any).theme === "classic") {
+    return (<><CartDrawer /><ClassicStore {...themedProps} /></>);
+  }
+  if ((store as any).theme === "minimal") {
+    return (<><CartDrawer /><MinimalStore {...themedProps} /></>);
   }
 
   return (
