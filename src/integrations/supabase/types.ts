@@ -651,6 +651,40 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_guest_order_by_number: {
+        Args: { _order_number: string }
+        Returns: {
+          created_at: string
+          id: string
+          order_number: string
+          payment_status: string
+          shipping_city: string
+          shipping_country: string
+          shipping_name: string
+          status: string
+          subtotal: number
+          total: number
+        }[]
+      }
+      get_public_store_by_slug: {
+        Args: { _slug: string }
+        Returns: {
+          city: string
+          country: string
+          created_at: string
+          currency: string
+          description: string
+          id: string
+          logo_url: string
+          name: string
+          owner_id: string
+          slug: string
+          status: string
+          terms_conditions: string
+          theme: string
+          updated_at: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

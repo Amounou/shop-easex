@@ -25,11 +25,8 @@ const ProductDetail = () => {
   useEffect(() => {
     const load = async () => {
       setLoading(true);
-      const { data: storeData } = await supabase
-        .from("stores")
-        .select("id, name")
-        .eq("slug", slug || "")
-        .single();
+      const { data: storeRows } = await (supabase as any).rpc("get_public_store_by_slug", { _slug: slug || "" });
+      const storeData = Array.isArray(storeRows) ? storeRows[0] : storeRows;
       if (!storeData) { setLoading(false); return; }
       setStoreName(storeData.name);
 

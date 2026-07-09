@@ -29,9 +29,9 @@ const StorePage = () => {
       let storeData = null;
 
       if (slug) {
-        // Load by slug — RLS already allows owner + active stores
-        const { data } = await supabase.from("stores").select("*").eq("slug", slug).limit(1).single();
-        storeData = data;
+        // Public storefront lookup (excludes sensitive contact columns)
+        const { data } = await (supabase as any).rpc("get_public_store_by_slug", { _slug: slug });
+        storeData = Array.isArray(data) ? data[0] ?? null : data;
       } else {
         // No slug: load only the current user's own store
         const { data: { session } } = await supabase.auth.getSession();
