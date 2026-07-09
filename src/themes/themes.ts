@@ -1,4 +1,11 @@
-export type StoreThemeId = "default" | "techone" | "luxe" | "midnight" | "atelier";
+export type StoreThemeId =
+  | "default"
+  | "techone"
+  | "classic"
+  | "minimal"
+  | "luxe"
+  | "midnight"
+  | "atelier";
 
 export type StoreTheme = {
   id: StoreThemeId;
@@ -22,6 +29,20 @@ export const STORE_THEMES: StoreTheme[] = [
     description: "Boutique high-tech façon marketplace : bandeau rouge, grille produits dense, badges promo.",
     tier: "free",
     preview: { bg: "#f5f5f5", accent: "#ef4444", text: "#111111" },
+  },
+  {
+    id: "classic",
+    name: "Classique Bleu",
+    description: "Style commerce traditionnel : bandeau bleu marine, mise en avant des promos et livraison.",
+    tier: "free",
+    preview: { bg: "#f8fafc", accent: "#1e3a8a", text: "#0f172a" },
+  },
+  {
+    id: "minimal",
+    name: "Minimal Mono",
+    description: "Design épuré noir & blanc, typographie soignée, idéal pour marques créatives.",
+    tier: "free",
+    preview: { bg: "#ffffff", accent: "#000000", text: "#0a0a0a" },
   },
   {
     id: "luxe",
